@@ -6,72 +6,87 @@ gateways"
 
 
 
-`### JHVPaymentServiceBundle`
-
-`jhv_payment_service:`
-
-`    security:`
-
-`        secret_key  : "secret key"`
-
-`        cipher      : "rijndael-256"`
-
-`        mode        : "cfb"  `
+Configuration reference:
+------------------------
 
 
 
-`    ### Definição das classes`
-
-`    classes:`
-
-`        ### Managers`
-
-`        plugin_manager            :
-"JHV\\Payment\\ServiceBundle\\Manager\\PluginManager"`
-
-`        payment_method_manager    :
-"JHV\\Payment\\ServiceBundle\\Manager\\PaymentMethodManager"        `
+File: yaml # app/config/config.yml
 
 
 
-`        ### FormType`
+\`\`\`
 
-`        payment_selector_type     :
-"JHV\\Payment\\ServiceBundle\\Form\\Type\\PaymentSelectorType"        `
+### JHVPaymentServiceBundle
 
+jhv_payment_service:
 
+### Security info
 
-`        ### Objetos`
+security:
 
-`        payment_method_class      :
-"JHV\\Payment\\ServiceBundle\\Model\\PaymentMethod"`
+secret_key  : "secret key"
 
-`        payment_instruction_class :
-"JHV\\Payment\\ServiceBundle\\Instruction\\PaymentInstruction"        `
+cipher      : "rijndael-256"
 
-
-
-`        ### Segurança`
-
-`        encrypter                 :
-"JHV\\Payment\\ServiceBundle\\Security\\Encrypter"`
+mode        : "cfb"
 
 
 
-`    ### Formas de pagamento disponíveis`
+### Definição das classes
 
-`    payment_methods:`
+classes:
 
-`        visa:`
+### Managers
 
-`            code          : "VISA"`
+plugin_manager            :
+"JHV\\\\Payment\\\\ServiceBundle\\\\Manager\\\\PluginManager"
 
-`            name          : "Cartão visa"`
+payment_method_manager    :
+"JHV\\\\Payment\\\\ServiceBundle\\\\Manager\\\\PaymentMethodManager"
 
-`            description   : "Pagamento com o cartão visa"`
 
-`            enabled       : true`
 
-`            plugin        : plugin_name`
+### FormType
 
-`            image         : /bundles/bundlename/images/planos/ct-visa.jpg`
+payment_selector_type     :
+"JHV\\\\Payment\\\\ServiceBundle\\\\Form\\\\Type\\\\PaymentSelectorType"
+
+
+
+### Objetos
+
+payment_method_class      :
+"JHV\\\\Payment\\\\ServiceBundle\\\\Model\\\\PaymentMethod"
+
+payment_instruction_class :
+"JHV\\\\Payment\\\\ServiceBundle\\\\Instruction\\\\PaymentInstruction"
+
+
+
+### Segurança
+
+encrypter                 :
+"JHV\\\\Payment\\\\ServiceBundle\\\\Security\\\\Encrypter"
+
+
+
+### Formas de pagamento disponíveis
+
+payment_methods:
+
+cobrebem_visa:
+
+code          : "VISA"
+
+name          : "Cartão visa"
+
+description   : "Pagamento com o cartão visa"
+
+enabled       : true
+
+plugin        : bla_plugin
+
+image         : /bundles/mailforwebsitecore/images/planos/ct-visa.jpg
+
+\`\`\`
