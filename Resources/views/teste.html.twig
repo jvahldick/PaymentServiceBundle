@@ -1,0 +1,15 @@
+{# empty Twig template #}
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    {{ teste.plugin.name }}
+    <br />
+    Finalização
+    
+    <form action="" method="post" {{ form_enctype(form) }}>
+        {{ form_widget(form) }}
+
+        <input type="submit" />
+    </form>
+    
+{% endblock %}

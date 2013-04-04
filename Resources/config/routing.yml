@@ -1,0 +1,3 @@
+jhv_payment_service_homepage:
+    pattern:  /
+    defaults: { _controller: JHVPaymentServiceBundle:Default:index }
