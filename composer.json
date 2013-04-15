@@ -1,0 +1,20 @@
+{
+    "name": "jhv/payment-service-bundle",
+    "type": "symfony-bundle",
+    "description": "PaymentServiceBundle",
+    "keywords": ["payment, payment method"],
+    "authors": [
+        {
+            "name": "Jorge Vahldick",
+            "email": "jvahldick@gmail.com"
+        },
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "jhv/payment-core-bundle": "@dev"
+    },
+    "autoload": {
+        "psr-0": { "JHV\\Payment\\ServiceBundle": "" }
+    },
+    "target-dir": "JHV/Payment/ServiceBundle"
+}
