@@ -7,14 +7,18 @@
         {
             "name": "Jorge Vahldick",
             "email": "jvahldick@gmail.com"
-        },
+        }
     ],
+    
     "minimum-stability": "dev",
+    
     "require": {
         "jhv/payment-core-bundle": "@dev"
     },
+    
     "autoload": {
         "psr-0": { "JHV\\Payment\\ServiceBundle": "" }
     },
+    
     "target-dir": "JHV/Payment/ServiceBundle"
 }
