@@ -7,12 +7,18 @@ namespace JHV\Payment\ServiceBundle\Model;
  * 
  * @author Jorge Vahldick <jvahldick@gmail.com>
  * @license Please view /Resources/meta/LICENCE
- * @copyright (c) 2013, Quality Press <http://www.qualitypress.com.br>
- * @copyright (c) 2013, Jorge Vahldick <jvahldick@gmail.com>
+ * @copyright (c) 2013
  */
 interface PaymentMethodInterface
 {
  
+    /**
+     * Localiza o identificador do meio de pagamento
+     * 
+     * @return string
+     */
+    function getId();
+    
     /**
      * Define o nome do meio de pagamento
      * 
@@ -59,6 +65,21 @@ interface PaymentMethodInterface
      * @return boolean
      */
     function isEnabled();
+    
+    /**
+     * Define se o meio de pagamento está visível para o usuário
+     * 
+     * @param boolean $boolean
+     * @return self
+     */
+    function setVisible($boolean);
+    
+    /**
+     * Verifica se o meio de pagamento está visível ao usuário
+     * 
+     * @return boolean
+     */
+    function isVisible();
     
     /**
      * Método no qual define qual o serviço (plugin) que está 
@@ -109,5 +130,21 @@ interface PaymentMethodInterface
      * @return string
      */
     function getImage();
+    
+    /**
+     * Dados extra.
+     * Definir informações extras ao meio de pagamento
+     * 
+     * @param array $data
+     * @return self
+     */
+    function setExtendedData(array $data);
+    
+    /**
+     * Localizar informações extras associadas ao meio de pagamento.
+     * 
+     * @return array
+     */
+    function getExtendedData();
     
 }

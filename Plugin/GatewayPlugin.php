@@ -2,13 +2,17 @@
 
 namespace JHV\Payment\ServiceBundle\Plugin;
 
+use Symfony\Component\HttpFoundation\Response;
+use JHV\Payment\ServiceBundle\Http\Request;
+
 /**
  * GatewayPlugin
+ * Uma extensão do plugin com objetivo de conexão a um ambiente externo,
+ * principalmente com gateways.
  * 
- * @author Jorge Vahldick <jvahldick@gmail.com>
- * @license Please view /Resources/meta/LICENCE file
- * @copyright (c) 2013, Quality Press <http://www.qualitypress.com.br>
- * @copyright (c) 2013, Jorge Vahldick <jvahldick@gmail.com>
+ * Poderá ser adicionado propriedades cURL para se juntar as propriedades
+ * da conexão, após "bind" da requisição, este trará uma resposta em formato
+ * de Response do symfony
  */
 abstract class GatewayPlugin extends Plugin
 {
@@ -25,13 +29,11 @@ abstract class GatewayPlugin extends Plugin
     }
     
     /**
+     * Adiciona uma propriedade para se juntar as opções
+     * que serão enviadas via requisição cURL
      * 
-     * 
-     * @param type $name
-     * @param type $value
-     * 
-     * @return \JHV\Payment\ServiceBundle\Plugin\GatewayPlugin
-     * @throws \RuntimeException
+     * @param string $name
+     * @param string $value
      */
     public function addCurlOption($name, $value)
     {        
@@ -39,9 +41,91 @@ abstract class GatewayPlugin extends Plugin
         return $this;
     }
     
+    /**
+     * Localiza as opções cURL já definidas
+     * 
+     * @return array
+     */
     public function getCurlOptions()
     {
         return $this->curlOptions;
+    }
+    
+    /**
+     * Através do bind de request ocorrerá uma conexão curl ao servidor
+     * de destino, trazendo como resultado a resposta da rede.
+     * 
+     * @param \JHV\Payment\ServiceBundle\Http\Request
+     * @param boolean $originalHeaders Manter headers originais
+     * -> Há um bug na função curl_getinfo($curl, CURLINFO_HEADER_SIZE) no qual 
+     * foi corrigido somente na versão 5.4.10 se não me engano, portanto manterei
+     * este inicialmente como false.
+     * 
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \RuntimeException
+     */
+    public function bind(Request $request, $originalHeaders = false)
+    {        
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt_array($curl, $this->getCurlOptions());
+        curl_setopt($curl, CURLOPT_URL, $request->getEndpoint());
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HEADER, $originalHeaders);
+        
+        // Efetua a criação do cabeçalho para requisição
+        $requestHeaders = array();
+        foreach ($request->headers->all() as $name => $value) {
+            if (is_array($value)) {
+                foreach ($value as $subValue)
+                    $requestHeaders[] = sprintf('%s: %s', $name, $subValue);
+            } else {
+                $requestHeaders[] = sprintf('%s: %s', $name, $value);
+            }
+        }
+        if (count($requestHeaders)) {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $requestHeaders);
+        }
+        
+        // Especificações por método de requisição
+        $method = strtoupper($request->getMethod());
+        switch ($method) {
+            case 'POST':
+                curl_setopt($curl, CURLOPT_POST, true);
+                if (false == $request->headers->has('Content-Type') || 'multipart/form-data' !== $request->headers->get('Content-Type'))
+                    $postFields = http_build_query($request->request->all());
+                else
+                    $postFields = $request->request->all();
+                
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+                break;
+            
+            case 'PUT':
+                curl_setopt($curl, CURLOPT_PUT, true);
+                break;
+        }
+        
+        // Verifica erro na conexão
+        if (false === $return = curl_exec($curl)) {
+            throw new \RuntimeException(
+                sprintf('Error on trying to connect via cURL library. cURL Error: %s: %s', curl_error($curl), curl_errno($curl))
+            );
+        }
+        
+        // Criação de cabeçalho para a resposta do transporte
+        $headerLimit = (true === $originalHeaders) ? curl_getinfo($curl, CURLINFO_HEADER_SIZE) : 0;
+        $responseHeaders = array();
+        if (preg_match_all('#^([^:\r\n]+):\s+([^\n\r]+)#m', substr($return, 0, $headerLimit), $matches)) {
+            foreach ($matches[1] as $key => $name) {
+                $responseHeaders[$name] = $matches[2][$key];
+            }
+        }
+        
+        $response = new Response(substr($return, $headerLimit), curl_getinfo($curl, CURLINFO_HTTP_CODE), $responseHeaders);
+        curl_close($curl);
+        
+        return $response;
     }
     
 }

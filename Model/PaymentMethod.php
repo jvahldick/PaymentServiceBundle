@@ -7,27 +7,37 @@ namespace JHV\Payment\ServiceBundle\Model;
  * 
  * @author Jorge Vahldick <jvahldick@gmail.com>
  * @license Please view /Resources/meta/LICENCE
- * @copyright (c) 2013, Quality Press <http://www.qualitypress.com.br>
- * @copyright (c) 2013, Jorge Vahldick <jvahldick@gmail.com>
+ * @copyright (c) 2013
  */
 class PaymentMethod implements PaymentMethodInterface
 {
     
+    protected $id;
     protected $name;
     protected $description;
     protected $enabled;
+    protected $visible;
     protected $plugin;
     protected $code;
     protected $image;
-    
-    function __construct($name, $description, $enabled, $plugin, $code = null, $image = null)
+    protected $extendedData;
+            
+    function __construct($id, $name, $description, $enabled, $visible, $plugin, $code = null, $image = null, array $extraData = array())
     {
+        $this->id = $id;
         $this->code = $code;
         $this->name = $name;
         $this->image = $image;
         $this->enabled = $enabled;
+        $this->visible = $visible;
         $this->plugin = $plugin;
         $this->description = $description;
+        $this->extendedData = $extraData;
+    }
+    
+    public function getId()
+    {
+        return $this->id;
     }
     
     public function getName()
@@ -62,7 +72,18 @@ class PaymentMethod implements PaymentMethodInterface
         $this->enabled = $enabled;
         return $this;
     }
-
+    
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
+        return $this;
+    }
+    
+    public function isVisible()
+    {
+        return $this->visible;
+    }
+    
     public function getCode()
     {
         return $this->code;
@@ -93,6 +114,17 @@ class PaymentMethod implements PaymentMethodInterface
     public function setPlugin(\JHV\Payment\ServiceBundle\Plugin\PluginInterface $plugin)
     {
         $this->plugin = $plugin;
+        return $this;
+    }
+    
+    public function getExtendedData()
+    {
+        return $this->extendedData;
+    }
+
+    public function setExtendedData(array $data)
+    {
+        $this->extendedData = $data;
         return $this;
     }
     

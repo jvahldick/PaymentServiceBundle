@@ -23,6 +23,9 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 
+                // Template de exibição do twig
+                ->scalarNode('default_template')->defaultValue('JHVPaymentServiceBundle:Form:payment_methods.html.twig')->end()
+                
                 // Security data
                 ->arrayNode('security')
                     ->children()
@@ -39,7 +42,9 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('payment_method_manager')->defaultValue('JHV\\Payment\\ServiceBundle\\Manager\\PaymentMethodManager')->end()
                         ->scalarNode('payment_method_class')->defaultValue('JHV\\Payment\\ServiceBundle\\Model\\PaymentMethod')->end()
                         ->scalarNode('payment_selector_type')->defaultValue('JHV\\Payment\\ServiceBundle\\Form\\Type\\PaymentSelectorType')->end()
+                        ->scalarNode('payment_selector_factory')->defaultValue('JHV\\Payment\\ServiceBundle\\Factory\\PaymentFormFactory')->end()
                         ->scalarNode('encrypter')->defaultValue('JHV\\Payment\\ServiceBundle\\Security\\Encrypter')->end()
+                        ->scalarNode('twig_extension')->defaultValue('JHV\\Payment\\ServiceBundle\\Twig\\Extension\\PaymentServiceExtension')->end()
                         ->scalarNode('payment_instruction_class')->isRequired()->end()
                     ->end()
                 ->end()
@@ -53,8 +58,15 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('name')->cannotBeEmpty()->isRequired()->end()
                             ->scalarNode('plugin')->cannotBeEmpty()->isRequired()->end()
                             ->scalarNode('enabled')->defaultTrue()->end()
+                            ->scalarNode('visible')->defaultTrue()->end()
                             ->scalarNode('description')->defaultNull()->end()
                             ->scalarNode('image')->defaultNull()->end()
+                            ->arrayNode('extra_data')
+                                ->useAttributeAsKey('id')
+                                    ->prototype('scalar')
+                                ->end()
+                                ->defaultValue(array())
+                            ->end()
                         ->end()
                     ->end()
                     ->cannotBeEmpty()

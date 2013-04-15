@@ -36,19 +36,23 @@ class Encrypter implements EncrypterInterface
 
     public function decrypt($string)
     {
-        $size = mcrypt_get_iv_size($this->cipher, $this->mode);
-        $string = base64_decode($string);
-        $iv = substr($string, 0, $size);
+        if (is_string($string)) {
+            $size = mcrypt_get_iv_size($this->cipher, $this->mode);
+            $string = base64_decode($string);
+            $iv = substr($string, 0, $size);
 
-        return rtrim(mcrypt_decrypt($this->cipher, $this->secretKey, substr($string, $size), $this->mode, $iv));
+            return rtrim(mcrypt_decrypt($this->cipher, $this->secretKey, substr($string, $size), $this->mode, $iv));
+        }
     }
 
     public function encrypt($string)
     {
-        $size = mcrypt_get_iv_size($this->cipher, $this->mode);
-        $iv = mcrypt_create_iv($size, MCRYPT_DEV_URANDOM);
+        if (is_string($string)) {
+            $size = mcrypt_get_iv_size($this->cipher, $this->mode);
+            $iv = mcrypt_create_iv($size, MCRYPT_DEV_URANDOM);
 
-        return base64_encode($iv.mcrypt_encrypt($this->cipher, $this->secretKey, $string, $this->mode, $iv));
+            return base64_encode($iv.mcrypt_encrypt($this->cipher, $this->secretKey, $string, $this->mode, $iv));
+        }
     }
     
     public function recursiveEncrypt(array $array)

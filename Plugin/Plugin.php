@@ -3,6 +3,8 @@
 namespace JHV\Payment\ServiceBundle\Plugin;
 
 use JHV\Payment\ServiceBundle\Exception\UnaccessibleFunctionException;
+use JHV\Payment\ServiceBundle\Model\PaymentMethodInterface;
+use JHV\Payment\CoreBundle\Financial\TransactionInterface;
 
 /**
  * Plugin
@@ -16,13 +18,12 @@ use JHV\Payment\ServiceBundle\Exception\UnaccessibleFunctionException;
  * 
  * @author Jorge Vahldick <jvahldick@gmail.com>
  * @license Please view /Resources/meta/LICENCE file
- * @copyright (c) 2013, QualityPress <http://www.qualitypress.com.br>
- * @copyright (c) 2013, Jorge Vahldick <jvahldick@gmail.com>
+ * @copyright (c) 2013
  */
 abstract class Plugin implements PluginInterface
 {
     
-    public function authorize(\JHV\Payment\ProcessBundle\Model\TransactionInterface $transaction)
+    public function authorize(TransactionInterface $transaction, PaymentMethodInterface $method)
     {
         throw new UnaccessibleFunctionException(sprintf(array(
             'The "%s" function has not been developed yet for this plugin.',
@@ -30,7 +31,7 @@ abstract class Plugin implements PluginInterface
         )));
     }
 
-    public function authorizeCapture(\JHV\Payment\ProcessBundle\Model\TransactionInterface $transaction)
+        public function authorizeCapture(TransactionInterface $transaction, PaymentMethodInterface $method)
     {
         throw new UnaccessibleFunctionException(sprintf(array(
             'The "%s" function has not been developed yet for this plugin.',
@@ -38,7 +39,7 @@ abstract class Plugin implements PluginInterface
         )));
     }
 
-    public function capture(\JHV\Payment\ProcessBundle\Model\TransactionInterface $transaction)
+    public function capture(TransactionInterface $transaction, PaymentMethodInterface $method)
     {
         throw new UnaccessibleFunctionException(sprintf(array(
             'The "%s" function has not been developed yet for this plugin.',
@@ -46,7 +47,7 @@ abstract class Plugin implements PluginInterface
         )));
     }
 
-    public function refund(\JHV\Payment\ProcessBundle\Model\TransactionInterface $transaction)
+    public function refund(TransactionInterface $transaction, PaymentMethodInterface $method)
     {
         throw new UnaccessibleFunctionException(sprintf(array(
             'The "%s" function has not been developed yet for this plugin.',

@@ -2,14 +2,5 @@
 {% extends '::base.html.twig' %}
 
 {% block body %}
-    {{ teste.plugin.name }}
-    <br />
-    Finalização
-    
-    <form action="" method="post" {{ form_enctype(form) }}>
-        {{ form_widget(form) }}
-
-        <input type="submit" />
-    </form>
-    
+    {{ qp_render_payment_methods(50.5, 'BRL') }}
 {% endblock %}

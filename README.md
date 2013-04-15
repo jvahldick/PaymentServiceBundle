@@ -11,6 +11,9 @@ Arquivo de configuração padrão.
 # app/config/security.yml
 ### JHVPaymentServiceBundle
 jhv_payment_service:
+	### Template
+    default_template: "JHVPaymentServiceBundle:Form:payment_methods.html.twig"
+
     security:
         secret_key  : "secret key"
         cipher      : "rijndael-256"
@@ -22,15 +25,19 @@ jhv_payment_service:
         plugin_manager            : "JHV\\Payment\\ServiceBundle\\Manager\\PluginManager"
         payment_method_manager    : "JHV\\Payment\\ServiceBundle\\Manager\\PaymentMethodManager"
         
-        ### FormType
+        ### Form
         payment_selector_type     : "JHV\\Payment\\ServiceBundle\\Form\\Type\\PaymentSelectorType"
+        payment_selector_factory  : "JHV\\Payment\\ServiceBundle\\Factory\\PaymentFormFactory"
         
         ### Objetos
         payment_method_class      : "JHV\\Payment\\ServiceBundle\\Model\\PaymentMethod"
-        payment_instruction_class : "JHV\\Payment\\ServiceBundle\\Instruction\\PaymentInstruction"
+        payment_instruction_class : "PaymentInstruction"
         
         ### Segurança
         encrypter                 : "JHV\\Payment\\ServiceBundle\\Security\\Encrypter"
+        
+        ### Twig extension
+        twig_extension            : "JHV\\Payment\\ServiceBundle\\Twig\\Extension\\PaymentServiceExtension"
         
             
     ### Formas de pagamento disponíveis
@@ -40,6 +47,9 @@ jhv_payment_service:
             name          : "Cartão visa"
             description   : "Pagamento com o cartão visa"
             enabled       : true
-            plugin        : bla_plugin
-            image         : /bundles/mailforwebsitecore/images/planos/ct-visa.jpg
+			visible       : true
+            plugin        : plugin_name
+            image         : /bundles/nome-bundle/images/cartao-visa.jpg
+			extra_data    :
+                operadora : CIELO
 ```

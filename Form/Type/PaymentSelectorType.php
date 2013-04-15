@@ -3,12 +3,10 @@
 namespace JHV\Payment\ServiceBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
 
 use JHV\Payment\ServiceBundle\Manager\PaymentMethodManagerInterface;
 use JHV\Payment\ServiceBundle\Manager\PluginManagerInterface;
-use JHV\Payment\ServiceBundle\Form\EventListener\PaymentSelectorSubscriber;
-use JHV\Payment\ServiceBundle\Model\PaymentMethodInterface;
+use JHV\Payment\ServiceBundle\Form\DataTransformer\PaymentMethodIntoPaymentInstructionTransformer;
 use JHV\Payment\ServiceBundle\Security\EncrypterInterface;
 
 /**
@@ -16,8 +14,7 @@ use JHV\Payment\ServiceBundle\Security\EncrypterInterface;
  * 
  * @author Jorge Vahldick <jvahldick@gmail.com>
  * @license Please view /Resources/meta/LICENCE
- * @copyright (c) 2013, Quality Press <http://www.qualitypress.com.br>
- * @copyright (c) 2013, Jorge Vahldick <jvahldick@gmail.com>
+ * @copyright (c) 2013
  */
 class PaymentSelectorType extends AbstractType
 {
@@ -37,26 +34,16 @@ class PaymentSelectorType extends AbstractType
     
     public function buildForm(\Symfony\Component\Form\FormBuilderInterface $builder, array $options)
     {
-        $subscriber = new PaymentSelectorSubscriber($options);
+        $transformer    = new PaymentMethodIntoPaymentInstructionTransformer($this, $options);        
         $builder
             ->add('payment_method', 'choice', array(
                 'choices'   => $this->buildPaymentMethodChoices(),
                 'expanded'  => true
             ))
-            ->addEventSubscriber($subscriber)
+            ->addModelTransformer($transformer)
         ;
         
         $this->processExtraForms($builder);
-        
-        $self = $this;
-        $builder->addModelTransformer(new CallbackTransformer(
-            function($data) use ($self, $options) {
-                return $self->transform($data, $options);
-            },
-            function($data) use ($self, $options) {
-                return $self->reverseTransform($data, $options);
-            }
-        ), true);
     }
     
     /**
@@ -78,13 +65,13 @@ class PaymentSelectorType extends AbstractType
     protected function buildPaymentMethodChoices()
     {
         $choices = array();
-        foreach ($this->paymentMethodManager->all() as $id => $paymentMethod)
+        foreach ($this->paymentMethodManager->all() as $paymentMethod)
         {
-            if (true === $paymentMethod->isEnabled()) {
+            if (true === $paymentMethod->isEnabled() && true === $paymentMethod->isVisible()) {
                 if (null !== $paymentMethod->getImage())
-                    $choices[$id] = html_entity_decode('<img src="'. $paymentMethod->getImage() .'" alt="'. $paymentMethod->getName() .'" title="'. $paymentMethod->getDescription() .'" />', ENT_NOQUOTES, 'UTF-8');
+                    $choices[$paymentMethod->getId()] = html_entity_decode('<img src="'. $paymentMethod->getImage() .'" alt="'. $paymentMethod->getName() .'" title="'. $paymentMethod->getDescription() .'" />', ENT_NOQUOTES, 'UTF-8');
                 else
-                    $choices[$id] = sprintf('form.payment.label.%s', strtolower($id));
+                    $choices[$paymentMethod->getId()] = sprintf('form.payment.label.%s', strtolower($paymentMethod->getId()));
             }
         }
         
@@ -113,8 +100,8 @@ class PaymentSelectorType extends AbstractType
      * @param \Symfony\Component\OptionsResolver\OptionsResolverInterface $resolver
      */
     public function setDefaultOptions(\Symfony\Component\OptionsResolver\OptionsResolverInterface $resolver)
-    {
-        $resolver->setDefaults(array(
+    { 
+       $resolver->setDefaults(array(
             'vars'                  => array(),
             'predefined_data'       => array(),
         ));
@@ -122,70 +109,81 @@ class PaymentSelectorType extends AbstractType
         $resolver->setRequired(array(
             'amount',
             'currency',
+            'client_ip',
         ));
         
         $resolver->setAllowedTypes(array(
             'amount'                => 'numeric',
             'currency'              => 'string',
+            'client_ip'             => 'string',
             'vars'                  => 'array',
             'predefined_data'       => 'array',
         ));
     }
     
+    /**
+     * Efetua a criação dos formulários extras de acordo com os
+     * meio de pagamentos registrados.
+     * 
+     * @param \Symfony\Component\Form\FormBuilderInterface $builder
+     */
     public function processExtraForms(\Symfony\Component\Form\FormBuilderInterface $builder)
     {
-        foreach ($this->paymentMethodManager->all() as $key => $pm) {
-            if (null !== $type = $this->pluginManager->getExtraForm($pm->getPlugin()->getName())) {
-                $builder->add('data_' . $key, $type);
+        foreach ($this->paymentMethodManager->all() as $paymentMethod) {
+            if (null !== $type = $this->pluginManager->getExtraForm($paymentMethod->getPlugin()->getName())) {
+                $builder->add('data_' . $paymentMethod->getPlugin()->getName(), $type);
             }
         }
     }
     
-    public function transform($data, array $options)
-    {        
-        if (null === $data) {
-            return null;
+    /**
+     * Objetivo do buildView nesta classe: definir variáveis de exibição
+     * 
+     * @param \Symfony\Component\Form\FormView $view
+     * @param \Symfony\Component\Form\FormInterface $form
+     * @param array $options
+     */
+    public function buildView(\Symfony\Component\Form\FormView $view, \Symfony\Component\Form\FormInterface $form, array $options)
+    {
+        if (isset($options['vars'])) {
+            $view->vars = array_merge($view->vars, $options['vars']);
         }
-
-        if ($data instanceof \JHV\Payment\ServiceBundle\Instruction\PaymentInstruction) {            
-            $method = $data->getPaymentMethod();
-            $methodData = array_map(function($v) { return $v[0]; }, $data->getExtendedData()->all());
-            if (isset($options['predefined_data'][$method])) {
-                $methodData = array_diff_key($methodData, $options['predefined_data'][$method]);
-            }
-
-            return array(
-                'method'        => $method,
-                'data_'.$method => $methodData,
-            );
-        }
-
-        throw new \RuntimeException(sprintf('Unsupported data of type "%s".', ('object' === $type = gettype($data)) ? get_class($data) : $type));
     }
     
-    public function reverseTransform($data, array $options)
-    {        
-        $method = isset($data['payment_method']) ? $data['payment_method'] : null;
-        $data = isset($data['data_'.$method]) ? $data['data_'.$method] : array();
-        $encryptedData = (is_array($data)) ? $this->encrypter->recursiveEncrypt($data) : $this->encrypter->encrypt($data);
-        
-        $payment_method = $this->paymentMethodManager->get($method);        
-        if ($payment_method instanceof PaymentMethodInterface) {
-            $object = new $this->dataClass;
-            $object
-                ->setCurrency($options['currency'])
-                ->setAmount($options['amount'])
-                ->setExtendedData($encryptedData)
-                ->setPaymentMethod($method)
-                ->setServiceName($this->paymentMethodManager->get($method)->getPlugin()->getName())
-            ;
-        } else {
-            $object = $data;
-        }
-        
-        print_r($this->encrypter->recursiveDecrypt($object->getExtendedData()));
-        
-        return $object;        
+    /**
+     * Localiza o gerenciador de plugins
+     * @return PluginManagerInterface
+     */
+    public function getPluginManager()
+    {
+        return $this->pluginManager;
+    }
+    
+    /**
+     * Localiza o gerenciador de meios de pagamento
+     * @return PaymentMethodManagerInterface
+     */
+    public function getPaymentMethodManager()
+    {
+        return $this->paymentMethodManager;
+    }
+    
+    /**
+     * Localiza o encriptador
+     * @return EncrypterInterface
+     */
+    public function getEncrypter()
+    {
+        return $this->encrypter;
+    }
+    
+    /**
+     * Localiza a string do objeto relacionado instrução de pagamento
+     * @return string
+     */
+    public function getDataClass()
+    {
+        return $this->dataClass;
     }
     
 };

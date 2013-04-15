@@ -2,15 +2,37 @@
 
 namespace JHV\Payment\ServiceBundle\Http;
 
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\HeaderBag;
+
 /**
  * Request
- * 
- * @author Jorge Vahldick <jvahldick@gmail.com>
- * @license Please view /Resources/meta/LICENCE file
- * @copyright (c) 2013, Quality Press <http://www.qualitypress.com.br>
- * @copyright (c) 2013, Jorge Vahldick <jvahldick@gmail.com>
+ * Classe que atua para efetuar requisições a rede.
  */
 class Request
 {
+    
+    protected   $method;
+    protected   $endpoint;
+    public      $request;
+    public      $headers;
+
+    public function __construct($endpoint, $method, array $request = array(), array $headers = array())
+    {
+        $this->endpoint = $endpoint;
+        $this->method = $method;
+        $this->request = new ParameterBag($request);
+        $this->headers = new HeaderBag($headers);
+    }
+
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    public function getEndpoint()
+    {
+        return $this->endpoint;
+    }
     
 }

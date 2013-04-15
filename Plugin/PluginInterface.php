@@ -2,7 +2,8 @@
 
 namespace JHV\Payment\ServiceBundle\Plugin;
 
-use JHV\Payment\ProcessBundle\Model\TransactionInterface;
+use JHV\Payment\CoreBundle\Financial\TransactionInterface;
+use JHV\Payment\ServiceBundle\Model\PaymentMethodInterface;
 
 /**
  * PluginInterface
@@ -15,8 +16,7 @@ use JHV\Payment\ProcessBundle\Model\TransactionInterface;
  * 
  * @author Jorge Vahldick <jvahldick@gmail.com>
  * @license Please view /Resources/meta/LICENCE file
- * @copyright (c) 2013, Quality Press <http://www.qualitypress.com.br>
- * @copyright (c) 2013, Jorge Vahldick <jvahldick@gmail.com>
+ * @copyright (c) 2013
  */
 interface PluginInterface
 {
@@ -27,10 +27,11 @@ interface PluginInterface
      * Verificará junto a operadora, através dos dados enviados,
      * se o cliente tem fundos para continuar a operação.
      * 
-     * @param \JHV\Payment\ProcessBundle\Model\TransactionInterface $transaction
+     * @param \JHV\Payment\CoreBundle\Financial\TransactionInterface $transaction
+     * @param \JHV\Payment\ServiceBundle\Model\PaymentMethodInterface $method
      * @return void
      */
-    function authorize(TransactionInterface $transaction);
+    function authorize(TransactionInterface $transaction, PaymentMethodInterface $method);
     
     /**
      * Efetuará a autorização e captura de fundos.
@@ -40,10 +41,11 @@ interface PluginInterface
      * serão solicitados para uma "transferência", no qual identifica que
      * a transação está completa.
      * 
-     * @param \JHV\Payment\ProcessBundle\Model\TransactionInterface $transaction
+     * @param \JHV\Payment\CoreBundle\Financial\TransactionInterface $transaction
+     * @param \JHV\Payment\ServiceBundle\Model\PaymentMethodInterface $method
      * @return void
      */
-    function authorizeCapture(TransactionInterface $transaction);
+    function authorizeCapture(TransactionInterface $transaction, PaymentMethodInterface $method);
     
     /**
      * Solicitação de transferência de fundos.
@@ -52,10 +54,11 @@ interface PluginInterface
      * uma transferência de fundos da conta do cliente para conta do
      * prestador de serviços.
      * 
-     * @param \JHV\Payment\ProcessBundle\Model\TransactionInterface $transaction
+     * @param \JHV\Payment\CoreBundle\Financial\TransactionInterface $transaction
+     * @param \JHV\Payment\ServiceBundle\Model\PaymentMethodInterface $method
      * @return void
      */
-    function capture(TransactionInterface $transaction);
+    function capture(TransactionInterface $transaction, PaymentMethodInterface $method);
     
     /**
      * Cancelamento e estorno de fundos da transação.
@@ -64,9 +67,10 @@ interface PluginInterface
      * efetuará uma requisição para que haja um estorno de fundos para conta
      * do cliente no qual efetuou a requisição.
      * 
-     * @param \JHV\Payment\ProcessBundle\Model\TransactionInterface $transaction
+     * @param \JHV\Payment\CoreBundle\Financial\TransactionInterface $transaction
+     * @param \JHV\Payment\ServiceBundle\Model\PaymentMethodInterface $method
      */
-    function refund(TransactionInterface $transaction);
+    function refund(TransactionInterface $transaction, PaymentMethodInterface $method);
     
     /**
      * Identificar o nome do plugin em questão.

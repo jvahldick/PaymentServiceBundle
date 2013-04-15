@@ -1,7 +1,4 @@
-parameters:
-#    jhv_payment_service.example.class: JHV\Payment\ServiceBundle\Example
-
-services:
+services:  
       ### Managers
       jhv_payment_service.manager.plugin:
           class: "%jhv_payment_service.classes.plugin_manager%"
@@ -30,14 +27,15 @@ services:
               - "%jhv_payment_service.classes.payment_instruction_class%"
           tags:
               - { name: form.type, alias: payment_selector }
-      
-      jhv_payment.plugin.credit_card:
-          class : "JHV\\Payment\\ServiceBundle\\Plugin\\BlaPlugin"
-          tags  :
-              - { name: "jhv_payment.plugin_extension" }
               
-      credit_card_type:
-          class: "JHV\\Payment\\ServiceBundle\\Form\\Type\\CreditCardType"
-          tags:
-              - { name: form.type, alias: credit_card }
-              - { name: "jhv_payment.payment_method", plugin: "bla_plugin" }
+      ### Form Factory
+      jhv_payment_service.factory.payment_process:
+          class       : "%jhv_payment_service.classes.payment_selector_factory%"
+          arguments   : ["@form.factory", "@jhv_payment.form_type.payment_selector"]
+          
+      ### Twig extension
+      jhv_payment_service.twig_extension.payment_process:
+          class       : "%jhv_payment_service.classes.twig_extension%"
+          arguments   : ["@service_container", "%jhv_payment_service.template.default_template%"]
+          tags        :
+              - { name: "twig.extension" }

@@ -9,8 +9,7 @@ use JHV\Payment\ServiceBundle\Manager\PluginManagerInterface;
  * 
  * @author Jorge Vahldick <jvahldick@gmail.com>
  * @license Please view /Resources/meta/LICENCE
- * @copyright (c) 2013, Quality Press <http://www.qualitypress.com.br>
- * @copyright (c) 2013, Jorge Vahldick <jvahldick@gmail.com>
+ * @copyright (c) 2013
  */
 class PaymentMethodManager implements PaymentMethodManagerInterface, \Countable
 {
@@ -53,7 +52,7 @@ class PaymentMethodManager implements PaymentMethodManagerInterface, \Countable
     
     public function create($id, array $args, $add = true)
     {
-        $required_args = array('name', 'description', 'enabled', 'code', 'plugin', 'image');
+        $required_args = array('name', 'description', 'enabled', 'visible', 'code', 'plugin', 'image', 'extra_data');
         if (count($diff = array_diff(array_keys($args), $required_args))) {
             throw new \InvalidArgumentException(sprintf(
                 'The arguments: %s must be setted',
@@ -71,7 +70,7 @@ class PaymentMethodManager implements PaymentMethodManagerInterface, \Countable
         
         $args['plugin'] = $this->pluginManager->get($args['plugin']);
         $class = $this->class;
-        $object = new $class($args['name'], $args['description'], $args['enabled'], $args['plugin'], $args['code'], $args['image']);
+        $object = new $class($id, $args['name'], $args['description'], $args['enabled'], $args['visible'], $args['plugin'], $args['code'], $args['image'], $args['extra_data']);
         
         if (true === $add) {
             $this->add($id, $object);

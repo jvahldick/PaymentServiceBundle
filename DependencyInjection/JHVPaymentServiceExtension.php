@@ -31,8 +31,13 @@ class JHVPaymentServiceExtension extends Extension
         $container->setParameter('jhv_payment_service.classes.payment_method_manager', $classes['payment_method_manager']);
         $container->setParameter('jhv_payment_service.classes.payment_method_class', $classes['payment_method_class']);
         $container->setParameter('jhv_payment_service.classes.payment_selector_type', $classes['payment_selector_type']);
+        $container->setParameter('jhv_payment_service.classes.payment_selector_factory', $classes['payment_selector_factory']);
         $container->setParameter('jhv_payment_service.classes.payment_instruction_class', $classes['payment_instruction_class']);
         $container->setParameter('jhv_payment_service.classes.encrypter', $classes['encrypter']);
+        $container->setParameter('jhv_payment_service.classes.twig_extension', $classes['twig_extension']);
+        
+        // Parâmetro para exibição do template
+        $container->setParameter('jhv_payment_service.template.default_template', $config['default_template']);
         
         // Definição de parâmetros de segurança
         $security = $config['security'];
