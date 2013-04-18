@@ -23,7 +23,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 
-                // Template de exibiÃ§Ã£o do twig
+                // Template de exibição do twig
                 ->scalarNode('default_template')->defaultValue('JHVPaymentServiceBundle:Form:payment_methods.html.twig')->end()
                 
                 // Security data

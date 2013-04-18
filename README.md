@@ -8,7 +8,7 @@ Symfony2 Bundle :: Create and manipulate payment methods and "services or gatewa
 Arquivo de configuração padrão.
 
 ``` yaml
-# app/config/security.yml
+# app/config.yml
 ### JHVPaymentServiceBundle
 jhv_payment_service:
 	### Template
