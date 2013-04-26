@@ -29,6 +29,7 @@ class PaymentServiceExtension extends \Twig_Extension
     {
         return array(
             'qp_render_payment_methods' => new \Twig_Function_Method($this, 'renderPaymentMethods', array("is_safe" => array("html"))),
+            'qp_get_payment_methods'    => new \Twig_Function_Method($this, 'getPaymentMethods', array("is_safe" => array("html"))),
         );
     }
     
@@ -77,6 +78,15 @@ class PaymentServiceExtension extends \Twig_Extension
     protected function getFormFactory()
     {
         return $this->container->get('jhv_payment_service.factory.payment_process');
+    }
+    
+    /**
+     * Localizar array dos meios de pagamento
+     * @return array
+     */
+    public function getPaymentMethods()
+    {
+        return $this->container->get('jhv_payment_service.manager.payment_method')->all();
     }
     
     /**
