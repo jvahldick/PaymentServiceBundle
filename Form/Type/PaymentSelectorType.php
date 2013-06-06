@@ -38,7 +38,8 @@ class PaymentSelectorType extends AbstractType
         $builder
             ->add('payment_method', 'choice', array(
                 'choices'   => $this->buildPaymentMethodChoices(),
-                'expanded'  => true
+                'expanded'  => true,
+                'label'     => 'form_label.payment_method'
             ))
             ->addModelTransformer($transformer)
         ;
@@ -131,7 +132,12 @@ class PaymentSelectorType extends AbstractType
     {
         foreach ($this->paymentMethodManager->all() as $paymentMethod) {
             if (null !== $type = $this->pluginManager->getExtraForm($paymentMethod->getPlugin()->getName())) {
-                $builder->add('data_' . $paymentMethod->getPlugin()->getName(), $type);
+                $builder->add('data_' . $paymentMethod->getPlugin()->getName(), $type, array(
+                    'label'     => sprintf('form_label.data.%s', $paymentMethod->getPlugin()->getName()),
+                    'attr'      => array(
+                        'class'     => sprintf('payment_data_%s', $paymentMethod->getPlugin()->getName())
+                    )
+                ));
             }
         }
     }
